@@ -36,6 +36,15 @@ require({
         token = new Token();
         scene.add(token);
 
+        innerRing = new TokenRing(300, 310, 'Blue');
+        scene.add(innerRing);
+
+        middleRing = new TokenRing(400, 410, 'Red');
+        scene.add(middleRing);
+
+        outerRing = new TokenRing(500, 510, 'Green');
+        scene.add(outerRing);
+
         const lightOne = new THREE.DirectionalLight (0xFFFFFF, 1.0);
         lightOne.position.set (100, 40, 50);
         scene.add (lightOne);
@@ -61,6 +70,15 @@ require({
 
         token.rotation.x += 0.01;
         token.rotation.y += 0.02;
+
+        innerRing.rotation.x += 0.007;
+        innerRing.rotation.y += 0.008;
+
+        middleRing.rotation.x += 0.009;
+        middleRing.rotation.y += 0.01;
+
+        outerRing.rotation.x += 0.01;
+        outerRing.rotation.y += 0.02;
 
         const rotZ1 = new THREE.Matrix4().makeRotationZ(THREE.Math.degToRad(1));
 
