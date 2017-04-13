@@ -49,9 +49,9 @@ require({
 
         //Token Object
         token = new Token();
-        innerRing = new TokenRing(300, 310, 'Blue');
-        middleRing = new TokenRing(400, 410, 'Red');
-        outerRing = new TokenRing(500, 510, 'Green');
+        innerRing = new TokenRing(290, 310, 'Blue');
+        middleRing = new TokenRing(390, 410, 'Red');
+        outerRing = new TokenRing(490, 510, 'Green');
 
         middleRing.add(innerRing);
         outerRing.add(middleRing);
@@ -59,7 +59,7 @@ require({
         token.scale.set(0.25, 0.25, 0.25);
         token.translateZ(140);
         token.translateY(500);
-        tokenBB = new THREE.Box3().setFromObject(token);
+        //tokenBB = new THREE.Box3().setFromObject(token);
         scene.add(token);
 
         const lightOne = new THREE.DirectionalLight (0xFFFFFF, 1.2);
@@ -80,10 +80,10 @@ require({
 
         requestAnimationFrame(animate);
         ballBB = new THREE.Box3().setFromObject(ball);
+        tokenBB = new THREE.Box3().setFromObject(token);
 
         var collision = ballBB.intersectsBox(tokenBB);
         if(collision){
-            console.log("Hit");
             scene.remove(token);
         }
 
@@ -94,6 +94,9 @@ require({
 
         token.rotation.x += 0.01;
         token.rotation.y += 0.02;
+
+        // token.position.x -= 5;
+        // token.position.y -= 5;
 
         innerRing.rotation.x += 0.007;
         innerRing.rotation.y += 0.008;
