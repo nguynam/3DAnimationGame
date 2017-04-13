@@ -8,21 +8,31 @@ require({
 
     var scene, camera, renderer;
     var geometry, material, mesh;
+    var tokenBB, ballBB;
 
     init();
     animate();
 
     function init() {
 
+        ballCF = new THREE.Matrix4();
+        ballTrans = new THREE.Vector3();
+        ballScale = new THREE.Vector3();
+        ballRot = new THREE.Quaternion();
+
+        tmpRotation = new THREE.Quaternion();
+        tmpTranslation = new THREE.Vector3();
+        tmpScale = new THREE.Vector3();
+
         window.addEventListener('keydown', onKeypress, false);
 
         scene = new THREE.Scene();
 
-        camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 1, 10000 );
-        const eyePos = new THREE.Vector3 (1000, 0, 400);
+        camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000 );
+        const eyePos = new THREE.Vector3 (1000, 300, 400);
         const cameraPose = new THREE.Matrix4().lookAt (
             eyePos,
-            new THREE.Vector3 (0, 0, 10),
+            new THREE.Vector3 (0, 0, 200),
             new THREE.Vector3 (0, 0, 1));
 
         cameraPose.setPosition(eyePos);
@@ -33,29 +43,31 @@ require({
         const globalAxes = new Axis();
         scene.add(globalAxes);
 
+        ball = new Ball();
+        ballCF.multiply(new THREE.Matrix4().makeTranslation(0, 0, 80));
+        scene.add(ball);
+
+        //Token Object
         token = new Token();
+        innerRing = new TokenRing(300, 310, 'Blue');
+        middleRing = new TokenRing(400, 410, 'Red');
+        outerRing = new TokenRing(500, 510, 'Green');
+
+        middleRing.add(innerRing);
+        outerRing.add(middleRing);
+        token.add(outerRing);
+        token.scale.set(0.25, 0.25, 0.25);
+        token.translateZ(140);
+        token.translateY(500);
+        tokenBB = new THREE.Box3().setFromObject(token);
         scene.add(token);
 
-        innerRing = new TokenRing(300, 310, 'Blue');
-        scene.add(innerRing);
-
-        middleRing = new TokenRing(400, 410, 'Red');
-        scene.add(middleRing);
-
-        outerRing = new TokenRing(500, 510, 'Green');
-        scene.add(outerRing);
-
-        const lightOne = new THREE.DirectionalLight (0xFFFFFF, 1.0);
-        lightOne.position.set (100, 40, 50);
+        const lightOne = new THREE.DirectionalLight (0xFFFFFF, 1.2);
+        lightOne.position.set (200, 40, 400);
         scene.add (lightOne);
 
-        myWheel = new Wheel(5);
-        //scene.add( myWheel );
-
-        wheelCF = new THREE.Matrix4();
-        wheelTrans = new THREE.Vector3();
-        wheelScale = new THREE.Vector3();
-        wheelRot = new THREE.Quaternion();
+        ground = new Ground();
+        scene.add(ground);
 
         renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -67,6 +79,18 @@ require({
     function animate() {
 
         requestAnimationFrame(animate);
+        ballBB = new THREE.Box3().setFromObject(ball);
+
+        var collision = ballBB.intersectsBox(tokenBB);
+        if(collision){
+            console.log("Hit");
+            scene.remove(token);
+        }
+
+        ballCF.decompose (tmpTranslation, tmpRotation, tmpScale);
+        ball.position.copy (tmpTranslation);
+        ball.quaternion.copy (tmpRotation);
+        ball.scale.copy (tmpScale);
 
         token.rotation.x += 0.01;
         token.rotation.y += 0.02;
@@ -80,40 +104,30 @@ require({
         outerRing.rotation.x += 0.01;
         outerRing.rotation.y += 0.02;
 
-        const rotZ1 = new THREE.Matrix4().makeRotationZ(THREE.Math.degToRad(1));
-
-        wheelCF.multiply (rotZ1);
-        wheelCF.decompose (wheelTrans, wheelRot, wheelScale);  // decompose the coord frame
-
-        myWheel.position.copy (wheelTrans);   /* apply the transformation */
-        myWheel.quaternion.copy(wheelRot);
-        myWheel.scale.copy (wheelScale);
-
         renderer.render(scene, camera);
 
     }
 
+    const moveYpos = new THREE.Matrix4().makeTranslation (0, 50, 0);
+    const moveYneg = new THREE.Matrix4().makeTranslation (0, -50, 0);
+    const rotZpos = new THREE.Matrix4().makeRotationZ (THREE.Math.degToRad(5));
+    const rotZneg = new THREE.Matrix4().makeRotationZ (THREE.Math.degToRad(-5));
     function onKeypress(event) {
         const key = event.keyCode || event.charCode;
 
         switch (key){
             case 73: { /* i */
-                frameCF.multiply(moveZpos);
-                /* travel distance: 50, wheel radius 158 */
-                const angle = 50 / 150;
-                wheelCF.multiply (new THREE.Matrix4().makeRotationZ (angle));
+                ballCF.multiply(moveYpos);            /* travel distance: 50, wheel radius 158 */
                 break;
             }
             case 74:  /* j */
-                frameCF.multiply(rotYpos);
+                ballCF.multiply(rotZpos);
                 break;
             case 75:  /* k */
-                frameCF.multiply(moveZneg);
-                const angle = 50 / 158;
-                wheelCF.multiply (new THREE.Matrix4().makeRotationZ (-angle));
+                ballCF.multiply(moveYneg);                /* travel distance: 50, wheel radius 158 */
                 break;
             case 76:  /* j */
-                frameCF.multiply(rotYneg);
+                ballCF.multiply(rotZneg);
                 break;
         }
     }

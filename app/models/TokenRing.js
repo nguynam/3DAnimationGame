@@ -8,9 +8,9 @@ class TokenRing {
         let col = color;
         let file;
 
-        if (col = 'Blue') {
+        if (col == 'Blue') {
             file = 'textures/blue.jpg';
-        } else if (col = 'Red') {
+        } else if (col == 'Red') {
             file = 'textures/red.jpg';
         } else {
             file = 'textures/green.jpg';
