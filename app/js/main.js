@@ -9,6 +9,12 @@ require({
     var scene, camera, renderer;
     var geometry, material, mesh;
     var tokenBB, ballBB;
+    var score = 0;
+    var size = 1250;
+    var xLoc = 0;
+    var yLoc = 0;
+
+    document.getElementById("insert").innerHTML = "" + score;
 
     init();
     animate();
@@ -79,12 +85,14 @@ require({
     function animate() {
 
         requestAnimationFrame(animate);
+
         ballBB = new THREE.Box3().setFromObject(ball);
         tokenBB = new THREE.Box3().setFromObject(token);
 
         var collision = ballBB.intersectsBox(tokenBB);
         if(collision){
             scene.remove(token);
+            score++; //FIX ME: This displays but does not update when the atom is caught
         }
 
         ballCF.decompose (tmpTranslation, tmpRotation, tmpScale);
@@ -95,8 +103,26 @@ require({
         token.rotation.x += 0.01;
         token.rotation.y += 0.02;
 
-        // token.position.x -= 5;
-        // token.position.y -= 5;
+
+        let plusOrMinusX = Math.random() < 0.5 ? -1 : 1; //Generates a 1 or -1
+        let moveX = plusOrMinusX * 25; //This affects the speed it moves around
+
+        let plusOrMinusY = Math.random() < 0.5 ? -1 : 1;
+        let moveY = plusOrMinusY * 25;
+
+        let tempX = xLoc += moveX;
+        let tempY = yLoc += moveY;
+
+        if (tempX > -size && tempX < size) { //makes sure it doesn't go out of bounds
+            token.position.x += moveX;
+            xLoc += moveX;
+        }
+
+        if (tempY > -size && tempY < size) {
+            token.position.y += moveY;
+            yLoc += moveY;
+        }
+
 
         innerRing.rotation.x += 0.007;
         innerRing.rotation.y += 0.008;
