@@ -10,11 +10,20 @@ require({
     var geometry, material, mesh;
     var tokenBB, ballBB;
     var score = 0;
-    var size = 1250;
+    var size = 3500;
     var xLoc = 0;
     var yLoc = 0;
+    let tempX = 0;
+    let tempY = 0;
+    let moveX;
+    let moveY;
+    let totalX = 0;
+    let totalY = 0;
+    let step = 10;
 
-    document.getElementById("insert").innerHTML = "" + score;
+    var update = true;
+
+    document.getElementById("insert").innerHTML = "";
 
     init();
     animate();
@@ -22,6 +31,7 @@ require({
     function init() {
 
         ballCF = new THREE.Matrix4();
+        ballRingCF = new THREE.Matrix4();
         ballTrans = new THREE.Vector3();
         ballScale = new THREE.Vector3();
         ballRot = new THREE.Quaternion();
@@ -35,7 +45,7 @@ require({
         scene = new THREE.Scene();
 
         camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000 );
-        const eyePos = new THREE.Vector3 (1000, 300, 400);
+        const eyePos = new THREE.Vector3 (0, -3000, 1000); //1000, 300, 400 || 0, 1, 3000
         const cameraPose = new THREE.Matrix4().lookAt (
             eyePos,
             new THREE.Vector3 (0, 0, 200),
@@ -50,8 +60,17 @@ require({
         scene.add(globalAxes);
 
         ball = new Ball();
-        ballCF.multiply(new THREE.Matrix4().makeTranslation(0, 0, 80));
-        scene.add(ball);
+        ballRing = new TokenRing(110, 120, 'Blue');
+        ballRing2 = new TokenRing(105, 115, 'Red');
+        ballRing3 = new TokenRing(95, 105, 'Green');
+
+        ballRingCF.multiply(new THREE.Matrix4().makeTranslation(0,0,90));
+        ballRing2.translateZ(20);
+        ballRing3.translateZ(40);
+        ballRing.add(ball);
+        ballRing.add(ballRing2);
+        ballRing.add(ballRing3);
+        scene.add(ballRing);
 
         //Token Object
         token = new Token();
@@ -92,7 +111,8 @@ require({
         var collision = ballBB.intersectsBox(tokenBB);
         if(collision){
             scene.remove(token);
-            score++; //FIX ME: This displays but does not update when the atom is caught
+            score = 1; //FIX ME: This displays but does not update when the atom is caught
+            document.getElementById("insert").innerHTML = "YOU WIN!!!!!!!";
         }
 
         ballCF.decompose (tmpTranslation, tmpRotation, tmpScale);
@@ -100,27 +120,78 @@ require({
         ball.quaternion.copy (tmpRotation);
         ball.scale.copy (tmpScale);
 
+        ballRingCF.decompose(tmpTranslation, tmpRotation, tmpScale);
+        ballRing.position.copy(tmpTranslation);
+        ballRing.quaternion.copy(tmpRotation);
+        ballRing.scale.copy(tmpScale);
+
         token.rotation.x += 0.01;
         token.rotation.y += 0.02;
 
+        let plusOrMinusX;
+        let plusOrMinusY;
 
-        let plusOrMinusX = Math.random() < 0.5 ? -1 : 1; //Generates a 1 or -1
-        let moveX = plusOrMinusX * 25; //This affects the speed it moves around
+        if(update){
+            plusOrMinusX = Math.random() < 0.5 ? -1 : 1; //Generates a 1 or -1
+            moveX = plusOrMinusX * 700; //This affects the speed it moves around
 
-        let plusOrMinusY = Math.random() < 0.5 ? -1 : 1;
-        let moveY = plusOrMinusY * 25;
+            plusOrMinusY = Math.random() < 0.5 ? -1 : 1;
+            moveY = plusOrMinusY * 700;
 
-        let tempX = xLoc += moveX;
-        let tempY = yLoc += moveY;
+            update = false;
+        }
 
         if (tempX > -size && tempX < size) { //makes sure it doesn't go out of bounds
-            token.position.x += moveX;
-            xLoc += moveX;
+            if(moveX < 0){
+                token.position.x -= step;
+                totalX -= step;
+                xLoc -= step;
+                tempX = xLoc -= step;
+            }
+            else{
+                token.position.x += step;
+                totalX += step;
+                xLoc += step;
+                tempX = xLoc += step;
+            }
+
+            if(totalX == moveX){
+                update = true;
+                totalX = 0;
+            }
+        }
+        else{
+            if(tempX > 0)
+                tempX -= 100;
+            else
+                tempX += 100;
+            moveX *= -1;
         }
 
         if (tempY > -size && tempY < size) {
-            token.position.y += moveY;
-            yLoc += moveY;
+            if(moveY < 0){
+                token.position.y -= step;
+                totalY -= step;
+                yLoc -= step;
+                tempY = yLoc -= step;
+            }
+            else{
+                token.position.y += step;
+                totalY += step;
+                yLoc += step;
+                tempY = yLoc += step;
+            }
+            if(totalY == moveY){
+                update = true;
+                totalY = 0;
+            }
+        }
+        else{
+            if(tempY > 0)
+                tempY -= 100;
+            else
+                tempY += 100;
+            moveY *= -1;
         }
 
 
@@ -145,18 +216,45 @@ require({
         const key = event.keyCode || event.charCode;
 
         switch (key){
+            case 37: {// left arrow
+                camera.matrixAutoUpdate = false;
+                camera.matrixWorld.multiply(new THREE.Matrix4().makeRotationY(THREE.Math.degToRad(5)));
+                scene.updateMatrixWorld(true);
+                break;
+            }
+            case 38: {// up arrow
+                camera.matrixAutoUpdate = false;
+                camera.matrixWorld.multiply(new THREE.Matrix4().makeTranslation(0, 0, -50));
+                scene.updateMatrixWorld(true);
+                break;
+            }
+            case 39: { // right arrow
+                camera.matrixAutoUpdate = false;
+                camera.matrixWorld.multiply(new THREE.Matrix4().makeRotationY(THREE.Math.degToRad(-5)));
+                scene.updateMatrixWorld(true);
+                break;
+            }
+            case 40: { // down arrow
+                camera.matrixAutoUpdate = false;
+                camera.matrixWorld.multiply(new THREE.Matrix4().makeTranslation(0, 0, 50));
+                scene.updateMatrixWorld(true);
+                break;
+            }
             case 73: { /* i */
-                ballCF.multiply(moveYpos);            /* travel distance: 50, wheel radius 158 */
+                ballRingCF.multiply(moveYpos);
+                ballCF.multiply(new THREE.Matrix4().makeRotationX((-50/100)));
+                //ballCF.multiply(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(5)));
                 break;
             }
             case 74:  /* j */
-                ballCF.multiply(rotZpos);
+                ballRingCF.multiply(rotZpos);
                 break;
             case 75:  /* k */
-                ballCF.multiply(moveYneg);                /* travel distance: 50, wheel radius 158 */
+                ballRingCF.multiply(moveYneg);
+                ballCF.multiply(new THREE.Matrix4().makeRotationX(50/100));
                 break;
             case 76:  /* j */
-                ballCF.multiply(rotZneg);
+                ballRingCF.multiply(rotZneg);
                 break;
         }
     }
