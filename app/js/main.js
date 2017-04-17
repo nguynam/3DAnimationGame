@@ -10,7 +10,7 @@ require({
     var geometry, material, mesh;
     var tokenBB, ballBB;
     var score = 0;
-    var size = 3500;
+    var size = 3400;
     var xLoc = 0;
     var yLoc = 0;
     let tempX = 0;
@@ -71,6 +71,61 @@ require({
         ballRing.add(ballRing2);
         ballRing.add(ballRing3);
         scene.add(ballRing);
+
+        // let bgWall = new Wall();
+        // scene.add(bgWall);
+        // bgWall.position.x += 1750;
+
+        let fRightStrut = new Strut();
+        scene.add(fRightStrut);
+        fRightStrut.position.x += 1750;
+        fRightStrut.position.z += 100;
+        fRightStrut.position.y -= 1750;
+        fRightStrut.rotateX(55);
+
+        let fLeftStrut = new Strut();
+        scene.add(fLeftStrut);
+        fLeftStrut.position.x -= 1750;
+        fLeftStrut.position.z += 100;
+        fLeftStrut.position.y -= 1750;
+        fLeftStrut.rotateX(55);
+
+        let bRightStrut = new Strut();
+        scene.add(bRightStrut);
+        bRightStrut.position.x += 1750;
+        bRightStrut.position.z += 100;
+        bRightStrut.position.y += 1750;
+        bRightStrut.rotateX(55);
+
+        let bLeftStrut = new Strut();
+        scene.add(bLeftStrut);
+        bLeftStrut.position.x -= 1750;
+        bLeftStrut.position.z += 100;
+        bLeftStrut.position.y += 1750;
+        bLeftStrut.rotateX(55);
+
+        let rightWall = new Wall();
+        scene.add(rightWall);
+        rightWall.position.x += 1750;
+        rightWall.position.z += 200;
+
+        let leftWall = new Wall();
+        scene.add(leftWall);
+        leftWall.position.x -= 1750;
+        leftWall.position.z += 200;
+
+        let backWall = new Wall();
+        scene.add(backWall);
+        backWall.translateY(1750);
+        backWall.translateZ(200);
+        backWall.rotateZ(THREE.Math.degToRad(90));
+
+        let frontWall = new Wall();
+        scene.add(frontWall);
+        frontWall.translateY(-1750);
+        frontWall.translateZ(200);
+        frontWall.rotateZ(THREE.Math.degToRad(90));
+
 
         //Token Object
         token = new Token();
