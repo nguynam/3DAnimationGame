@@ -10,7 +10,7 @@ require({
     var geometry, material, mesh;
     var tokenBB, ballBB;
     var score = 0;
-    var size = 3400;
+    var size = 3000;
     var xLoc = 0;
     var yLoc = 0;
     let tempX = 0;
@@ -20,8 +20,14 @@ require({
     let totalX = 0;
     let totalY = 0;
     let step = 10;
+    let now;
+    let totalTime;
+    let seconds = new Date().getTime()/1000;
+    let menu;
 
     var update = true;
+    var gameOver = false;
+    let gameStart = false;
 
     document.getElementById("insert").innerHTML = "";
 
@@ -29,6 +35,11 @@ require({
     animate();
 
     function init() {
+        menu = document.getElementById("difficulty");
+        menu.addEventListener("change", difficultySelected);
+
+        let button = document.getElementById("start");
+        button.addEventListener("click", startGame);
 
         ballCF = new THREE.Matrix4();
         ballRingCF = new THREE.Matrix4();
@@ -160,95 +171,108 @@ require({
 
         requestAnimationFrame(animate);
 
-        ballBB = new THREE.Box3().setFromObject(ball);
-        tokenBB = new THREE.Box3().setFromObject(token);
+        now = new Date().getTime();
+        if(gameStart){
+            if(!gameOver)
+                document.getElementById("insert").innerHTML = "Seconds: " + (13 - (now/1000 - seconds));
 
-        var collision = ballBB.intersectsBox(tokenBB);
-        if(collision){
-            scene.remove(token);
-            score = 1; //FIX ME: This displays but does not update when the atom is caught
-            document.getElementById("insert").innerHTML = "YOU WIN!!!!!!!";
-        }
-
-        ballCF.decompose (tmpTranslation, tmpRotation, tmpScale);
-        ball.position.copy (tmpTranslation);
-        ball.quaternion.copy (tmpRotation);
-        ball.scale.copy (tmpScale);
-
-        ballRingCF.decompose(tmpTranslation, tmpRotation, tmpScale);
-        ballRing.position.copy(tmpTranslation);
-        ballRing.quaternion.copy(tmpRotation);
-        ballRing.scale.copy(tmpScale);
-
-        token.rotation.x += 0.01;
-        token.rotation.y += 0.02;
-
-        let plusOrMinusX;
-        let plusOrMinusY;
-
-        if(update){
-            plusOrMinusX = Math.random() < 0.5 ? -1 : 1; //Generates a 1 or -1
-            moveX = plusOrMinusX * 700; //This affects the speed it moves around
-
-            plusOrMinusY = Math.random() < 0.5 ? -1 : 1;
-            moveY = plusOrMinusY * 700;
-
-            update = false;
-        }
-
-        if (tempX > -size && tempX < size) { //makes sure it doesn't go out of bounds
-            if(moveX < 0){
-                token.position.x -= step;
-                totalX -= step;
-                xLoc -= step;
-                tempX = xLoc -= step;
-            }
-            else{
-                token.position.x += step;
-                totalX += step;
-                xLoc += step;
-                tempX = xLoc += step;
+            if(now >= (totalTime) && !gameOver){
+                gameOver = true;
+                document.getElementById("insert").innerHTML = "YOU LOSE LOSER! GET GOOD!";
             }
 
-            if(totalX == moveX){
-                update = true;
-                totalX = 0;
-            }
-        }
-        else{
-            if(tempX > 0)
-                tempX -= 100;
-            else
-                tempX += 100;
-            moveX *= -1;
-        }
+            ballBB = new THREE.Box3().setFromObject(ball);
+            tokenBB = new THREE.Box3().setFromObject(token);
 
-        if (tempY > -size && tempY < size) {
-            if(moveY < 0){
-                token.position.y -= step;
-                totalY -= step;
-                yLoc -= step;
-                tempY = yLoc -= step;
+            var collision = ballBB.intersectsBox(tokenBB);
+            if(collision && !gameOver){
+                scene.remove(token);
+                score = 1;
+                document.getElementById("insert").innerHTML = "YOU WIN!!!!!!!";
+                gameOver = true;
             }
-            else{
-                token.position.y += step;
-                totalY += step;
-                yLoc += step;
-                tempY = yLoc += step;
-            }
-            if(totalY == moveY){
-                update = true;
-                totalY = 0;
-            }
-        }
-        else{
-            if(tempY > 0)
-                tempY -= 100;
-            else
-                tempY += 100;
-            moveY *= -1;
-        }
 
+            ballCF.decompose (tmpTranslation, tmpRotation, tmpScale);
+            ball.position.copy (tmpTranslation);
+            ball.quaternion.copy (tmpRotation);
+            ball.scale.copy (tmpScale);
+
+            ballRingCF.decompose(tmpTranslation, tmpRotation, tmpScale);
+            ballRing.position.copy(tmpTranslation);
+            ballRing.quaternion.copy(tmpRotation);
+            ballRing.scale.copy(tmpScale);
+
+            token.rotation.x += 0.01;
+            token.rotation.y += 0.02;
+
+            let plusOrMinusX;
+            let plusOrMinusY;
+
+            if(!gameOver){
+                if(update){
+                    plusOrMinusX = Math.random() < 0.5 ? -1 : 1; //Generates a 1 or -1
+                    moveX = plusOrMinusX * 700; //This affects the speed it moves around
+
+                    plusOrMinusY = Math.random() < 0.5 ? -1 : 1;
+                    moveY = plusOrMinusY * 700;
+
+                    update = false;
+                }
+
+                if (tempX > -size && tempX < size) { //makes sure it doesn't go out of bounds
+                    if(moveX < 0){
+                        token.position.x -= step;
+                        totalX -= step;
+                        xLoc -= step;
+                        tempX = xLoc -= step;
+                    }
+                    else{
+                        token.position.x += step;
+                        totalX += step;
+                        xLoc += step;
+                        tempX = xLoc += step;
+                    }
+
+                    if(totalX == moveX){
+                        update = true;
+                        totalX = 0;
+                    }
+                }
+                else{
+                    if(tempX > 0)
+                        tempX -= 100;
+                    else
+                        tempX += 100;
+                    moveX *= -1;
+                }
+
+                if (tempY > -size && tempY < size) {
+                    if(moveY < 0){
+                        token.position.y -= step;
+                        totalY -= step;
+                        yLoc -= step;
+                        tempY = yLoc -= step;
+                    }
+                    else{
+                        token.position.y += step;
+                        totalY += step;
+                        yLoc += step;
+                        tempY = yLoc += step;
+                    }
+                    if(totalY == moveY){
+                        update = true;
+                        totalY = 0;
+                    }
+                }
+                else{
+                    if(tempY > 0)
+                        tempY -= 100;
+                    else
+                        tempY += 100;
+                    moveY *= -1;
+                }
+            }
+        }
 
         innerRing.rotation.x += 0.007;
         innerRing.rotation.y += 0.008;
@@ -327,4 +351,22 @@ require({
         }
     }
 
+    function difficultySelected(ev){
+        let sel = menu.options[menu.selectedIndex].value;
+        if(sel == 0){
+            step = 10;
+        }
+        else if(sel == 1){
+            step = 20;
+        }
+        else if(sel == 2){
+            step = 50;
+        }
+        console.log(sel);
+    }
+
+    function startGame(){
+        gameStart = true;
+        totalTime = new Date().getTime() + 10000;
+    }
 });
