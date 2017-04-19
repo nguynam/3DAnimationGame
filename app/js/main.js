@@ -60,9 +60,9 @@ require({
         scene.add(globalAxes);
 
         ball = new Ball();
-        ballRing = new TokenRing(110, 120, 'Blue');
-        ballRing2 = new TokenRing(105, 115, 'Red');
-        ballRing3 = new TokenRing(95, 105, 'Green');
+        ballRing = new TokenRing(50, 50, 'Blue');
+        ballRing2 = new TokenRing(50, 50, 'Red');
+        ballRing3 = new TokenRing(50, 50, 'Green');
 
         ballRingCF.multiply(new THREE.Matrix4().makeTranslation(0,0,90));
         ballRing2.translateZ(20);
