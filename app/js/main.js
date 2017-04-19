@@ -295,9 +295,10 @@ require({
                 scene.updateMatrixWorld(true);
                 break;
             }
+
             case 73: { /* i */
                 ballRingCF.multiply(moveYpos);
-                ballCF.multiply(new THREE.Matrix4().makeRotationX((-50/100)));
+                ballCF.multiply(new THREE.Matrix4().makeRotationX((-50 / 100)));
                 //ballCF.multiply(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(5)));
                 break;
             }
@@ -310,6 +311,18 @@ require({
                 break;
             case 76:  /* j */
                 ballRingCF.multiply(rotZneg);
+                break;
+            case 68: /* g - front right diagonal */
+                ballRingCF.multiply(new THREE.Matrix4().makeTranslation(50, 50, 0));
+                break;
+            case 87: /* w - front left diagonal*/
+                ballRingCF.multiply(new THREE.Matrix4().makeTranslation(-50, 50, 0));
+                break;
+            case 65: /* a - back left diagonal */
+                ballRingCF.multiply(new THREE.Matrix4().makeTranslation(-50, -50, 0));
+                break;
+            case 83: /* s - back right diagonal */
+                ballRingCF.multiply(new THREE.Matrix4().makeTranslation(50, -50, 0));
                 break;
         }
     }
