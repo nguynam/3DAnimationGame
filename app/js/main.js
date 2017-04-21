@@ -22,7 +22,7 @@ require({
     let step = 10;
     let now;
     let totalTime;
-    let seconds = new Date().getTime()/1000;
+    let seconds;
     let menu;
 
     var update = true;
@@ -162,6 +162,10 @@ require({
         lightOne.position.set (200, 40, 400);
         scene.add (lightOne);
 
+        const lightTwo = new THREE.DirectionalLight (0xFFFFFF, 1.2);
+        lightTwo.position.set (-200, -40, 400);
+        scene.add (lightTwo);
+
         ground = new Ground();
         scene.add(ground);
 
@@ -176,12 +180,12 @@ require({
 
         requestAnimationFrame(animate);
 
-        now = new Date().getTime();
         if(gameStart){
+            now = new Date().getTime();
             if(!gameOver)
-                document.getElementById("insert").innerHTML = "Seconds: " + (13 - (now/1000 - seconds));
+                document.getElementById("insert").innerHTML = "Seconds: " + (10 - (now/1000 - seconds));
 
-            if(now >= (totalTime) && !gameOver){
+            if(now >= (totalTime - 1000) && !gameOver){
                 gameOver = true;
                 document.getElementById("insert").innerHTML = "YOU LOSE LOSER! GET GOOD!";
             }
@@ -192,7 +196,7 @@ require({
             var collision = ballBB.intersectsBox(tokenBB);
             if(collision && !gameOver){
                 scene.remove(token);
-                let tempTime = (13 - (now/1000 - seconds));
+                let tempTime = (10 - (now/1000 - seconds));
                 score = calcScore(tempTime);
                 document.getElementById("insert").innerHTML = "YOU WIN! Time: " + tempTime +  " Score: " + score;
                 gameOver = true;
@@ -382,6 +386,7 @@ require({
     function startGame(){
         gameStart = true;
         totalTime = new Date().getTime() + 10000;
+        seconds = new Date().getTime()/1000;
     }
 
     function calcScore (secs) {
