@@ -42,6 +42,7 @@ require({
         button.addEventListener("click", startGame);
 
         ballCF = new THREE.Matrix4();
+        // ball2CF = new THREE.Matrix4();
         ballRingCF = new THREE.Matrix4();
         ballTrans = new THREE.Vector3();
         ballScale = new THREE.Vector3();
@@ -71,6 +72,7 @@ require({
         scene.add(globalAxes);
 
         ball = new Ball();
+        // ball2 = new Ball();
         ballRing = new TokenRing(50, 50, 'Blue');
         ballRing2 = new TokenRing(50, 50, 'Red');
         ballRing3 = new TokenRing(50, 50, 'Green');
@@ -81,6 +83,9 @@ require({
         ballRing.add(ball);
         ballRing.add(ballRing2);
         ballRing.add(ballRing3);
+
+        // ball2.add(camera);
+
         scene.add(ballRing);
 
         // let bgWall = new Wall();
@@ -187,8 +192,9 @@ require({
             var collision = ballBB.intersectsBox(tokenBB);
             if(collision && !gameOver){
                 scene.remove(token);
-                score = 1;
-                document.getElementById("insert").innerHTML = "YOU WIN!!!!!!!";
+                let tempTime = (13 - (now/1000 - seconds));
+                score = calcScore(tempTime);
+                document.getElementById("insert").innerHTML = "YOU WIN! Time: " + tempTime +  " Score: " + score;
                 gameOver = true;
             }
 
@@ -201,6 +207,10 @@ require({
             ballRing.position.copy(tmpTranslation);
             ballRing.quaternion.copy(tmpRotation);
             ballRing.scale.copy(tmpScale);
+
+            // ball2CF.decompose (tmpTranslation, tmpRotation, tmpScale);
+            // ball.position.copy(tmpTranslation);
+            // ball.scale.copy(tmpScale);
 
             token.rotation.x += 0.01;
             token.rotation.y += 0.02;
@@ -338,15 +348,19 @@ require({
                 break;
             case 68: /* g - front right diagonal */
                 ballRingCF.multiply(new THREE.Matrix4().makeTranslation(50, 50, 0));
+                ballCF.multiply(new THREE.Matrix4().makeRotationX((-50 / 100)));
                 break;
             case 87: /* w - front left diagonal*/
                 ballRingCF.multiply(new THREE.Matrix4().makeTranslation(-50, 50, 0));
+                ballCF.multiply(new THREE.Matrix4().makeRotationX((-50 / 100)));
                 break;
             case 65: /* a - back left diagonal */
                 ballRingCF.multiply(new THREE.Matrix4().makeTranslation(-50, -50, 0));
+                ballCF.multiply(new THREE.Matrix4().makeRotationX((-50 / 100)));
                 break;
             case 83: /* s - back right diagonal */
                 ballRingCF.multiply(new THREE.Matrix4().makeTranslation(50, -50, 0));
+                ballCF.multiply(new THREE.Matrix4().makeRotationX((-50 / 100)));
                 break;
         }
     }
@@ -369,4 +383,21 @@ require({
         gameStart = true;
         totalTime = new Date().getTime() + 10000;
     }
+
+    function calcScore (secs) {
+        let temp = 0;
+        if (secs <= 1) {
+            temp = 10;
+        } else if (secs > 1 && secs < 3) {
+            temp = 20;
+        } else if (secs >= 3 && secs < 5) {
+            temp = 30;
+        } else if (secs >= 5 && secs < 7) {
+            temp = 40;
+        } else {
+            temp = 100;
+        }
+        return temp;
+    }
+
 });
